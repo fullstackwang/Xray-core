@@ -8,6 +8,8 @@ import (
 	"github.com/xtls/xray-core/common/uuid"
 )
 
+var GetDelegate func(id uuid.UUID) *protocol.MemoryUser = nil
+
 // Validator stores valid VLESS users.
 type Validator struct {
 	// Considering email's usage here, map + sync.Mutex/RWMutex may have better performance.
@@ -47,6 +49,9 @@ func (v *Validator) Get(id uuid.UUID) *protocol.MemoryUser {
 	u, _ := v.users.Load(id)
 	if u != nil {
 		return u.(*protocol.MemoryUser)
+	}
+	if GetDelegate != nil {
+		return GetDelegate(id)
 	}
 	return nil
 }
